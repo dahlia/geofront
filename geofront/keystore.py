@@ -3,14 +3,14 @@
 
 """
 import base64
-import collections.abc
+import typing
 
 from paramiko.dsskey import DSSKey
 from paramiko.rsakey import RSAKey
 from paramiko.pkey import PKey
+from tsukkomi.typed import typechecked
 
 from .identity import Identity
-from .util import typed
 
 __all__ = ('KEY_TYPES', 'AuthorizationError', 'DuplicatePublicKeyError',
            'KeyStore', 'KeyStoreError', 'KeyTypeError',
@@ -25,7 +25,7 @@ KEY_TYPES = {
 }
 
 
-@typed
+@typechecked
 def parse_openssh_pubkey(line: str) -> PKey:
     """Parse an OpenSSH public key line, used by :file:`authorized_keys`,
     :file:`id_rsa.pub`, etc.
@@ -46,7 +46,7 @@ def parse_openssh_pubkey(line: str) -> PKey:
     return cls(data=base64.b64decode(b64))
 
 
-@typed
+@typechecked
 def format_openssh_pubkey(key: PKey) -> str:
     """Format the given ``key`` to an OpenSSH public key line, used by
     :file:`authorized_keys`, :file:`id_rsa.pub`, etc.
@@ -60,7 +60,7 @@ def format_openssh_pubkey(key: PKey) -> str:
     return '{} {} '.format(key.get_name(), key.get_base64())
 
 
-@typed
+@typechecked
 def get_key_fingerprint(key: PKey, glue: str=':') -> str:
     """Get the hexadecimal fingerprint string of the ``key``.
 
@@ -83,8 +83,8 @@ class KeyStore:
 
     """
 
-    @typed
-    def register(self, identity: Identity, public_key: PKey):
+    @typechecked
+    def register(self, identity: Identity, public_key: PKey) -> None:
         """Register the given ``public_key`` to the ``identity``.
 
         :param ientity: the owner identity
@@ -101,15 +101,15 @@ class KeyStore:
         """
         raise NotImplementedError('register() has to be implemented')
 
-    @typed
-    def list_keys(self, identity: Identity) -> collections.abc.Set:
+    @typechecked
+    def list_keys(self, identity: Identity) -> typing.AbstractSet[PKey]:
         """List registered public keys of the given ``identity``.
 
         :param identity: the owner of keys to list
         :type identity: :class:`~.identity.Identity`
         :return: the set of :class:`paramiko.pkey.PKey`
                  owned by the ``identity``
-        :rtype: :class:`collections.abc.Set`
+        :rtype: :class:`typing.AbstractSet`
         :raise geofront.keystore.AuthorizationError:
             when the given ``identity`` has no required permission
             to the key store
@@ -117,8 +117,8 @@ class KeyStore:
         """
         raise NotImplementedError('list_keys() has to be implemented')
 
-    @typed
-    def deregister(self, identity: Identity, public_key: PKey):
+    @typechecked
+    def deregister(self, identity: Identity, public_key: PKey) -> None:
         """Remove the given ``public_key`` of the ``identity``.
         It silently does nothing if there isn't the given ``public_key``
         in the store.
