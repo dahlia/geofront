@@ -16,16 +16,25 @@
 import sys
 import os
 import os.path
+import re
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(
-    0,
-    os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-)
+docs_path = os.path.dirname(__file__)
+root_path = os.path.abspath(os.path.join(docs_path, '..'))
+sys.path.insert(0, root_path)
 
-from geofront.version import VERSION
+# Copy README.rst into docs/ and adjust some links.
+prefix_url = 'https://geofront.readthedocs.io/en/stable/'
+with open(os.path.join(root_path, 'README.rst')) as src_f, \
+     open(os.path.join(docs_path, 'readme.rst'), 'w') as dst_f:
+    txt = src_f.read()
+    txt = re.sub(r'(?:^|\n).. _docs-[^:<>\s]+:\s+https?://[^\n]+', '', txt)
+    txt = re.sub(r'`([^`<>]+)\s*<docs-([^:<>\s]+)>`_', r':doc:`\1 <\2>`', txt)
+    dst_f.write(txt)
+
+from geofront.version import VERSION  # noqa: E402
 
 # -- General configuration ------------------------------------------------
 
